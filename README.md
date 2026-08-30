@@ -43,7 +43,7 @@ ISW_4K3_G3_2026
 └── 📄 README.md
 ```
 
-Link al repositorio: COMPLETAR CON EL LINK
+[Link al repositorio](https://github.com/diegociriaci/ISW_4K3_G3_2026)
 
 ## 📊 Criterios para la determinación de la estructura
 
