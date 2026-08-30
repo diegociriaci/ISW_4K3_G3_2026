@@ -8,6 +8,7 @@
 |:-:|------------|:------:|
 | 1 | Rivadero, Maximiliano | 97963 |
 | 2 | Ciriaci Ribone, Diego | 70071 |
+| 3 | Pohl, Santiago | 400340 |
 
 ## 🗂️ Estructura del repositorio
 ```
