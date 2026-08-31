@@ -6,13 +6,19 @@
 
 | # | Integrante | Legajo |
 |:-:|------------|:------:|
-| 1 | Rivadero, Maximiliano | 97963 |
+| 1 | Caliva, Ariel Enrique | 69777 |
 | 2 | Ciriaci Ribone, Diego | 70071 |
-| 3 | Pohl, Santiago | 400340 |
-| 4 | Caliva, Ariel Enrique | 69777 |
-| 5 | Palacios, Matias Valentin | 94690 |
-| 6 | Ferreyra, Emiliano José | 85396 |
-| 7 | Miserendino, José | 90150 |
+| 3 | Ferreyra, Emiliano José | 85396 |
+| 4 | Mendez Bazan, Santino | 406354 |
+| 5 | Miserendino, José | 90150 |
+| 6 | Palacios, Matias Valentin | 94690 |
+| 7 | Pohl, Santiago | 400340 |
+| 8 | Pou, Tomás | 97242 |
+| 9 | Rivadero, Maximiliano | 97963 |
+| 10 | Romero, Victoria Micaela | 89909 |
+| 11 | Silvestri, Brian | 76860 |
+| 12 | Villacorta, Nicolás | 90914 |
+
 
 
 ## 🗂️ Estructura del repositorio
