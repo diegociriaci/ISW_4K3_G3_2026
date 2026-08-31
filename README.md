@@ -17,9 +17,6 @@
 | 9 | Rivadero, Maximiliano | 97963 |
 | 10 | Romero, Victoria Micaela | 89909 |
 | 11 | Silvestri, Brian | 76860 |
-| 12 | Villacorta, Nicolás | 90914 |
-
-
 
 ## 🗂️ Estructura del repositorio
 ```
