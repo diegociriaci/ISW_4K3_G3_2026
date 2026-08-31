@@ -54,7 +54,7 @@ ISW_4K3_G3_2026
 
 ● **Material_de_estudio/:** funciona como el repositorio principal de los recursos teóricos de la asignatura. Agrupa el material de consulta y aprendizaje, estructurado en las siguientes subcarpetas para un acceso rápido y ordenado:
 
-  ○ **Material_de_estudio/Material_bibliografico/:** alberga los libros, apuntes y documentación oficial de la materia. Se encuentra clasificada según las distintas unidades o enfoques vistos en clase (por ejemplo: Agilismo, Lean y Kanban, SCM, TDD, etc.).
+    ○ **Material_de_estudio/Material_bibliografico/:** alberga los libros, apuntes y documentación oficial de la materia. Se encuentra clasificada según las distintas unidades o enfoques vistos en clase (por ejemplo:   Agilismo, Lean y Kanban, SCM, TDD, etc.).
 
   ○ **Material_de_estudio/Presentaciones_de_clases/:** espacio destinado a guardar las diapositivas y el material audiovisual proyectado por el cuerpo docente durante el dictado de las clases teóricas y prácticas.
 
