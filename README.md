@@ -54,23 +54,23 @@ ISW_4K3_G3_2026
 
 ● **Material_de_estudio/:** funciona como el repositorio principal de los recursos teóricos de la asignatura. Agrupa el material de consulta y aprendizaje, estructurado en las siguientes subcarpetas para un acceso rápido y ordenado:
 
-○ **Material_de_estudio/Material_bibliografico/:** alberga los libros, apuntes y documentación oficial de la materia. Se encuentra clasificada según las distintas unidades o enfoques vistos en clase (por ejemplo: Agilismo, Lean y Kanban, SCM, TDD, etc.).
+  ○ **Material_de_estudio/Material_bibliografico/:** alberga los libros, apuntes y documentación oficial de la materia. Se encuentra clasificada según las distintas unidades o enfoques vistos en clase (por ejemplo: Agilismo, Lean y Kanban, SCM, TDD, etc.).
 
-○ **Material_de_estudio/Presentaciones_de_clases/:** espacio destinado a guardar las diapositivas y el material audiovisual proyectado por el cuerpo docente durante el dictado de las clases teóricas y prácticas.
+  ○ **Material_de_estudio/Presentaciones_de_clases/:** espacio destinado a guardar las diapositivas y el material audiovisual proyectado por el cuerpo docente durante el dictado de las clases teóricas y prácticas.
 
-○ **Material_de_estudio/Resumenes/:** directorio colaborativo donde los integrantes del grupo suben sus apuntes de estudio sintetizados.
+  ○ **Material_de_estudio/Resumenes/:** directorio colaborativo donde los integrantes del grupo suben sus apuntes de estudio sintetizados.
 
 ● **Material_practico/:** agrupa la totalidad de los recursos orientados a la ejercitación y evaluación. Incluye tanto el material provisto por los profesores como las resoluciones y entregables elaborados por el equipo:
 
-○ **Material_practico/Ejercicios_resueltos/:** carpeta dedicada a almacenar las soluciones a los distintos problemas y casos prácticos planteados a lo largo de la cursada hechos por los integrantes en grupo.
+  ○ **Material_practico/Ejercicios_resueltos/:** carpeta dedicada a almacenar las soluciones a los distintos problemas y casos prácticos planteados a lo largo de la cursada hechos por los integrantes en grupo.
 
-○ **Material_practico/Guias/:** contiene los enunciados y guías de trabajos prácticos que provee la cátedra para ejercitar los conceptos de la materia.
+  ○ **Material_practico/Guias/:** contiene los enunciados y guías de trabajos prácticos que provee la cátedra para ejercitar los conceptos de la materia.
 
-○ **Material_practico/Trabajos_de_investigacion_grupales/:** reservado para las entregas de investigación o exposición. Dado que estos trabajos poseen un formato, objetivo y rigor metodológico distinto al de un desarrollo de software tradicional, se gestionan de manera apartada.
+  ○ **Material_practico/Trabajos_de_investigacion_grupales/:** reservado para las entregas de investigación o exposición. Dado que estos trabajos poseen un formato, objetivo y rigor metodológico distinto al de un desarrollo de software tradicional, se gestionan de manera apartada.
 
-○ **Material_practico/Trabajos_practicos_grupales/:** contiene las entregas de los Trabajos Prácticos Evaluables, que representan el "desarrollo de una aplicación" con mayor rigor y orientación al producto.
+  ○ **Material_practico/Trabajos_practicos_grupales/:** contiene las entregas de los Trabajos Prácticos Evaluables, que representan el "desarrollo de una aplicación" con mayor rigor y orientación al producto.
 
-○ **Material_practico/Templates/:** colección de documentos base o plantillas (tanto dadas por los docentes como armadas por el propio equipo) que garantizan un formato homogéneo y estandarizado en todas las presentaciones.
+  ○ **Material_practico/Templates/:** colección de documentos base o plantillas (tanto dadas por los docentes como armadas por el propio equipo) que garantizan un formato homogéneo y estandarizado en todas las presentaciones.
 
 ## ⚙️ Ítems de configuración
 
