@@ -80,7 +80,7 @@ ISW_4K3_G3_2026
 
 ## Ítems de configuración
 
-| Nombre                                     | Regla de nombrado                                           | Ubicación                                                                                         | Tipo              |
+| ítem de configuración                                    | Regla de nombrado                                           | Ubicación                                                                                         | Tipo              |
 | ------------------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------- |
 | Consignas de Trabajos de Investigación     | `TP-Investigacion_<NumeroTPI>_<NombreTPI>.<Extension>`      | `/Material_practico/Trabajos_de_investigacion_grupales/`                                          | Cátedra           |
 | Entregas de Trabajos de Investigación      | `TP-Investigacion_<NumeroTPI>_<NombreTPI>_G3.<Extension>`   | `/Material_practico/Trabajos_de_investigacion_grupales/TPI<NumeroTPI>-<NombreTPI>/`               | Producción propia |
