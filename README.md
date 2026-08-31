@@ -127,6 +127,17 @@ ISW_4K3_G3_2026
 | `<TemaBibliografia>`   | Nombre del tema bajo el cual se agrupan varios materiales Bibliográficos de la cátedra                                                                                                                 |
 
 ---
+## Líneas Base
+
+Las líneas base se establecerán luego de cada trabajo práctico evaluable o aproximadamente una semana antes de cada examen.
+
+Se utilizarán **tags de Git** para identificar cada línea base (`LB1`, `LB2`, `LB3`, etc.), sin modificar los nombres originales de los documentos. Cada tag representará una versión estable del repositorio correspondiente a un momento específico del cursado.
+
+| Línea Base | Momento |
+|------------|---------|
+| LB1 | Entrega TP1 |
+| LB2 | Entrega TP2 |
+| LB3 | Previo al examen |
 
 <div align="center">
 
