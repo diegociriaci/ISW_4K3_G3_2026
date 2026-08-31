@@ -54,7 +54,7 @@ ISW_4K3_G3_2026
 
 [Link al repositorio](https://github.com/diegociriaci/ISW_4K3_G3_2026)
 
-## 📊 Criterios para la determinación de la estructura
+## Criterios para la determinación de la estructura
 
 ● **Informacion_y_lineamientos/:** contiene toda la documentación formal, directivas y reglamentaciones proporcionadas por la cátedra. Aquí se ubican los programas académicos, la planificación del cuatrimestre y las normativas generales de cursado.
 
@@ -78,7 +78,7 @@ ISW_4K3_G3_2026
 
 ○ **Material_practico/Templates/:** colección de documentos base o plantillas (tanto dadas por los docentes como armadas por el propio equipo) que garantizan un formato homogéneo y estandarizado en todas las presentaciones.
 
-## ⚙️ Ítems de configuración
+## Ítems de configuración
 
 | Nombre                                     | Regla de nombrado                                           | Ubicación                                                                                         | Tipo              |
 | ------------------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------- |
