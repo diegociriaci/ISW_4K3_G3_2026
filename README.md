@@ -12,6 +12,7 @@
 | 4 | Caliva, Ariel Enrique | 69777 |
 | 5 | Palacios, Matias Valentin | 94690 |
 | 6 | Ferreyra, Emiliano José | 85396 |
+| 7 | Miserendino, José | 90150 |
 
 
 ## 🗂️ Estructura del repositorio
