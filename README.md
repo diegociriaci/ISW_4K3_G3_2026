@@ -11,6 +11,7 @@
 | 3 | Pohl, Santiago | 400340 |
 | 4 | Caliva, Ariel Enrique | 69777 |
 | 5 | Palacios, Matias Valentin | 94690 |
+| 6 | Ferreyra, Emiliano José | 85396 |
 
 
 ## 🗂️ Estructura del repositorio
