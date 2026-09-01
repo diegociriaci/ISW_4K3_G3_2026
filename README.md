@@ -23,13 +23,14 @@
 ISW_4K3_G3_2026
 ├── 📁 Informacion_y_lineamientos/
 ├── 📁 Material_de_estudio/
-│   ├── 📁 Material_bibliografico/
+│   ├── 📁 Material_bibliográfico/
 │   │   ├── 📁 Agilismo/
 │   │   ├── 📁 Ingenieria_de_software/
 │   │   ├── 📁 Lean_y_kanban/
 │   │   ├── 📁 SCM/
 │   │   ├── 📁 TDD/
 │   │   └── 📁 Testing_de_software/
+│   ├── 📁 Notas/
 │   ├── 📁 Presentaciones_de_clases/
 │   └── 📁 Resumenes/
 ├── 📁Material_practico/
@@ -60,7 +61,9 @@ ISW_4K3_G3_2026
 
 ● **Material_de_estudio/:** funciona como el repositorio principal de los recursos teóricos de la asignatura. Agrupa el material de consulta y aprendizaje, estructurado en las siguientes subcarpetas para un acceso rápido y ordenado:
 
-○ **Material_de_estudio/Material_bibliografico/:** alberga los libros, apuntes y documentación oficial de la materia. Se encuentra clasificada según las distintas unidades o enfoques vistos en clase (por ejemplo:   Agilismo, Lean y Kanban, SCM, TDD, etc.).
+○ **Material_de_estudio/Material_bibliográfico/:** alberga los libros, apuntes y documentación oficial de la materia. Se encuentra clasificada según las distintas unidades o enfoques vistos en clase (por ejemplo: Agilismo, Lean y Kanban, SCM, TDD, etc.).
+
+○ **Material_de_estudio/Notas/:** contiene anotaciones breves tomadas durante las clases, reuniones o actividades de estudio. Estos documentos pueden encontrarse en proceso de elaboración y servir como material de apoyo para la posterior creación de resúmenes.
 
 ○ **Material_de_estudio/Presentaciones_de_clases/:** espacio destinado a guardar las diapositivas y el material audiovisual proyectado por el cuerpo docente durante el dictado de las clases teóricas y prácticas.
 
@@ -92,7 +95,8 @@ ISW_4K3_G3_2026
 | Templates                                  | `TEM_<NombreTemplate>.<Extension>`                          | `/Material_practico/Templates/`                                                                                     | Cátedra           |
 | Guías de Ejercicios                        | `G_<NombreGuia>.pdf`                                        | `/Material_practico/Guias/`                                                                       | Cátedra           |
 | Informacion y Lineamientos                 | `IL_<NombreInfo>.<Extension>`                               | `/Informacion_y_lineamientos/`                                                                     | Cátedra           |
-| Material Bibliografico                     | `MB_<NombreLibro>.pdf`                                      | `/Material_de_estudio/Material_bibliografico/<TemaBibliografia>/`                                 | Cátedra           |
+| Material Bibliográfico                     | `MB_<NombreLibro>.pdf`                                      | `/Material_de_estudio/Material_bibliográfico/<TemaBibliografia>/`                                 | Cátedra           |
+| Notas de clase                             | `NOTA_<Fecha>_<Tema>_<ApellidoAutor>.<Extension>`           | `/Material_de_estudio/Notas/`                                                                     | Producción propia |
 | Presentaciones de Clase                    | `PPT_<NumeroPresentacion>_<NombrePresentacion>.pdf`         | `/Material_de_estudio/Presentaciones_de_clases/`                                                   | Cátedra           |
 | Resumenes                                  | `RESUMEN_<NumeroParcial>_<ApellidoDueño>.pdf`               | `/Material_de_estudio/Resumenes/`                                                                 | Producción propia |
   
@@ -109,8 +113,11 @@ ISW_4K3_G3_2026
 | IL                     | Informacion y Lineamientos                                                                                                                                                                             |
 | MB                     | Material Bibliografico                                                                                                                                                                                 |
 | PPT                    | Presentaciones teoricas vistas en clase                                                                                                                                                                |
+| NOTA                   | Nota de clase o de una actividad de estudio                                                                                                                                                            |
 | `<ApellidoDueño>`      | Apellido del autor del resumen                                                                                                                                                                         |
+| `<ApellidoAutor>`      | Apellido del autor de la nota                                                                                                                                                                          |
 | `<Extension>`          | Extensión del archivo (pdf, zip, docx, etc)                                                                                                                                                            |
+| `<Fecha>`              | Fecha de creación de la nota en formato `AAAA-MM-DD`                                                                                                                                                   |
 | `<NumeroEjercicio>`    | Número del Ejercicio Practico Resuelto                                                                                                                                                                 |
 | `<NumeroParcial>`      | Número de Parcial                                                                                                                                                                                      |
 | `<NumeroPresentacion>` | Número de la Presentación según el orden propuesto por la cátedra                                                                                                                                      |
@@ -124,6 +131,7 @@ ISW_4K3_G3_2026
 | `<NombreTemplate>`     | Nombre del template                                                                                                                                                                                    |
 | `<NombreTPI>`          | Nombre de trabajo práctico de Investigación                                                                                                                                                            |
 | `<NombreTPG>`          | Nombre de trabajo práctico grupal                                                                                                                                                                      |
+| `<Tema>`               | Tema principal tratado en la nota                                                                                                                                                                      |
 | `<TemaBibliografia>`   | Nombre del tema bajo el cual se agrupan varios materiales Bibliográficos de la cátedra                                                                                                                 |
 
 ---
