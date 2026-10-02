@@ -137,15 +137,15 @@ ISW_4K3_G3_2026
 ---
 ## Líneas Base
 
-Las líneas base se establecerán luego de cada trabajo práctico evaluable o aproximadamente una semana antes de cada examen.
+Las líneas base se establecerán un día antes de cada parcial y al finalizar la totalidad de las actividades evaluativas de la cursada.
 
 Se utilizarán **tags de Git** para identificar cada línea base (`LB1`, `LB2`, `LB3`, etc.), sin modificar los nombres originales de los documentos. Cada tag representará una versión estable del repositorio correspondiente a un momento específico del cursado.
 
 | Línea Base | Momento |
 |------------|---------|
-| LB1 | Entrega TP1 |
-| LB2 | Entrega TP2 |
-| LB3 | Previo al examen |
+| LB1 | Un día antes del 1er parcial |
+| LB2 | Un día antes del 2do parcial |
+| LB3 | Al finalizar todas la actividades evaluativas |
 
 <div align="center">
 
