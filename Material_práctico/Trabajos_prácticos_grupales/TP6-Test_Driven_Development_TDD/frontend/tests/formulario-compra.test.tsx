@@ -160,6 +160,7 @@ describe("Formulario de compra de entradas", () => {
       expect(botonConfirmar()).toBeDisabled();
 
       await user.click(screen.getByLabelText(/Efectivo/));
+      await user.type(screen.getByLabelText("Email"), "ana@mail.com");
 
       expect(botonConfirmar()).toBeEnabled();
     });
@@ -290,11 +291,13 @@ describe("Formulario de compra de entradas", () => {
     await completarVisitante(user, 1, "30", "Común");
     await completarVisitante(user, 2, "8", "VIP");
     await user.click(screen.getByLabelText(/Efectivo/));
+    await user.type(screen.getByLabelText("Email"), "ana@mail.com");
 
     await user.click(botonConfirmar());
 
     await waitFor(() =>
       expect(api.comprar).toHaveBeenCalledWith({
+        email: "ana@mail.com",
         fechaVisita: "2026-10-20",
         formaPago: "EFECTIVO",
         entradas: [
