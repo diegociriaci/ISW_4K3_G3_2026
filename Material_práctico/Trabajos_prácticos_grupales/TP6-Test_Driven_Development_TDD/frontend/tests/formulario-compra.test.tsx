@@ -1,4 +1,10 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -148,6 +154,53 @@ describe("Formulario de compra de entradas", () => {
       await user.click(botonQuitar());
 
       expect(screen.getAllByLabelText(/Edad del visitante/)).toHaveLength(2);
+    });
+  });
+
+  describe("edad del visitante", () => {
+    it("no permite ingresar una edad negativa", async () => {
+      const user = renderizar();
+      await botonDia(/20\/10\/2026/);
+
+      await user.type(screen.getByLabelText("Edad del visitante 1"), "-5");
+
+      expect(screen.getByLabelText("Edad del visitante 1")).toHaveValue(5);
+    });
+
+    it("no permite pegar una edad negativa", async () => {
+      const user = renderizar();
+      await botonDia(/20\/10\/2026/);
+
+      await user.click(screen.getByLabelText("Edad del visitante 1"));
+      await user.paste("-5");
+
+      expect(screen.getByLabelText("Edad del visitante 1")).toHaveValue(null);
+    });
+
+    it("descarta los ceros a la izquierda", async () => {
+      renderizar();
+      await botonDia(/20\/10\/2026/);
+      const edad = screen.getByLabelText<HTMLInputElement>(
+        "Edad del visitante 1",
+      );
+
+      // fireEvent y no user.type: user-event ya quita los ceros en inputs
+      // numéricos, mientras que el navegador sí deja escribir "023"
+      fireEvent.change(edad, { target: { value: "023" } });
+
+      expect(edad.value).toBe("23");
+    });
+
+    it("permite una edad de 0 (bebés)", async () => {
+      const user = renderizar();
+      await botonDia(/20\/10\/2026/);
+      const edad = screen.getByLabelText<HTMLInputElement>(
+        "Edad del visitante 1",
+      );
+
+      await user.type(edad, "0");
+
+      expect(edad.value).toBe("0");
     });
   });
 

@@ -15,6 +15,9 @@ interface FormularioVisitanteProps {
   onCambiar: (visitante: VisitanteForm) => void;
 }
 
+// Teclas que un input numérico acepta pero no forman una edad válida
+const TECLAS_NO_NUMERICAS = ["-", "+", "e", "E", ".", ","];
+
 // Cada entrada tiene su propia edad y su propio tipo de pase
 export default function FormularioVisitante({
   numero,
@@ -48,7 +51,19 @@ export default function FormularioVisitante({
           max={120}
           aria-label={`Edad del visitante ${numero}`}
           value={visitante.edad}
-          onChange={(e) => onCambiar({ ...visitante, edad: e.target.value })}
+          onKeyDown={(e) => {
+            if (TECLAS_NO_NUMERICAS.includes(e.key)) {
+              e.preventDefault();
+            }
+          }}
+          onChange={(e) => {
+            // Sólo enteros no negativos (descarta "-5" pegado, decimales, etc.)
+            if (/^\d*$/.test(e.target.value)) {
+              // Sin ceros a la izquierda ("023" → "23"), pero "0" es válido
+              const edad = e.target.value.replace(/^0+(?=\d)/, "");
+              onCambiar({ ...visitante, edad });
+            }
+          }}
         />
       </label>
       <label htmlFor={idPase}>
