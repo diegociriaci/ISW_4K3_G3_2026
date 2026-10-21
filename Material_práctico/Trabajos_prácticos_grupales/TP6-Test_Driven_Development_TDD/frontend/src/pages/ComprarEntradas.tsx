@@ -39,7 +39,6 @@ export default function ComprarEntradas() {
     nuevoVisitante(),
   ]);
   const [formaPago, setFormaPago] = useState<FormaPago | null>(null);
-  const [email, setEmail] = useState("");
   // Cotización junto con las entradas a las que corresponde, para no mostrar
   // precios desactualizados mientras llega la respuesta del servidor
   const [cotizacion, setCotizacion] = useState<{
@@ -112,10 +111,7 @@ export default function ComprarEntradas() {
     }
   });
 
-  const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const puedeConfirmar = Boolean(
-    fechaVisita && formaPago && entradas && emailValido,
-  );
+  const puedeConfirmar = Boolean(fechaVisita && formaPago && entradas);
 
   const irAlSiguientePaso = (resultado: ResultadoCompra) => {
     const estado = { state: { resultado } };
@@ -137,7 +133,8 @@ export default function ComprarEntradas() {
     setError(null);
     try {
       irAlSiguientePaso(
-        await api.comprar({ fechaVisita, formaPago, email, entradas }),
+        // El mail de confirmación lo decide el backend (usuario de la sesión)
+        await api.comprar({ fechaVisita, formaPago, entradas }),
       );
     } catch (e) {
       setError(
@@ -176,21 +173,6 @@ export default function ComprarEntradas() {
       </fieldset>
 
       <SelectorFormaPago formaPago={formaPago} onSeleccionar={setFormaPago} />
-
-      <fieldset className="seccion">
-        <legend>Correo de confirmación</legend>
-        <label htmlFor="email-confirmacion">
-          Email
-          <input
-            id="email-confirmacion"
-            type="email"
-            autoComplete="email"
-            placeholder="visitante@email.com"
-            value={email}
-            onChange={(evento) => setEmail(evento.target.value)}
-          />
-        </label>
-      </fieldset>
 
       {error && (
         <p role="alert" className="error">

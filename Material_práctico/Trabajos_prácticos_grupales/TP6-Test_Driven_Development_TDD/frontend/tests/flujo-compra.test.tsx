@@ -52,7 +52,6 @@ async function completarYConfirmar(user: UserEvent, formaPago: RegExp) {
     "VIP",
   );
   await user.click(screen.getByLabelText(formaPago));
-  await user.type(screen.getByLabelText("Email"), "ana@mail.com");
   await user.click(screen.getByRole("button", { name: "Confirmar compra" }));
 }
 
