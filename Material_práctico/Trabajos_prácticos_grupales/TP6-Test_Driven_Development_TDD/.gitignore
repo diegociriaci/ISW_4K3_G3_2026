@@ -1,6 +1,29 @@
-node_modules/
-dist/
-coverage/
+# dependencias
+node_modules
+
+# tests
+coverage
+
+# build
+dist
+build
+
+# entorno
 .env
-*.sqlite
+.env*.local
+
+# base de datos local
 *.db
+*.db-shm
+*.db-wal
+
+# logs
+npm-debug.log*
+*.log
+
+# editor
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.DS_Store
