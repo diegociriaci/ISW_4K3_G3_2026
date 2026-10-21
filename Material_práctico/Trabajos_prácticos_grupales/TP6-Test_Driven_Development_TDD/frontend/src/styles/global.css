@@ -1,0 +1,373 @@
+/* Paleta y fuente definidas por el PO (FAQ 3) */
+:root {
+  --verde-hunter: #386641;
+  --verde-sage: #6a994e;
+  --verde-amarillo: #a7c957;
+  --champagne: #f2e8cf;
+  --ladrillo: #bc4749;
+
+  --texto: #1f2a22;
+  --texto-suave: #4d5a50;
+  --blanco: #ffffff;
+  --deshabilitado: #c9c4b5;
+
+  --radio: 12px;
+  --sombra: 0 4px 16px rgb(56 102 65 / 15%);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Lato", system-ui, sans-serif;
+  color: var(--texto);
+  background: var(--champagne);
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.encabezado {
+  background: var(--verde-hunter);
+  color: var(--champagne);
+  padding: 16px;
+}
+
+.encabezado h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.contenido {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* ---------- Formulario de compra ---------- */
+
+.seccion {
+  border: 0;
+  margin: 0 0 16px;
+  padding: 16px;
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.seccion legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 12px;
+  font-weight: 700;
+  color: var(--verde-hunter);
+}
+
+.calendario {
+  clear: both;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 8px;
+}
+
+.dia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px;
+  border: 2px solid var(--verde-sage);
+  border-radius: var(--radio);
+  background: var(--blanco);
+  color: var(--verde-hunter);
+}
+
+.dia.dia-seleccionado:hover:not(:disabled) {
+  background: var(--verde-hunter);
+  border-color: var(--verde-hunter);
+  color: var(--champagne);
+}
+
+.dia:hover:not(:disabled) {
+  background: var(--champagne);
+}
+
+.dia[aria-pressed="true"] {
+  background: var(--verde-hunter);
+  border-color: var(--verde-hunter);
+  color: var(--champagne);
+}
+
+.dia:disabled {
+  border-color: var(--deshabilitado);
+  color: var(--deshabilitado);
+  text-decoration: line-through;
+}
+
+.dia-semana,
+.dia-mes {
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.dia-numero {
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.selector-cantidad {
+  clear: both;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.selector-cantidad button {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--verde-sage);
+  color: var(--blanco);
+  font-size: 1.5rem;
+}
+
+.selector-cantidad button:disabled {
+  background: var(--deshabilitado);
+}
+
+.selector-cantidad output {
+  min-width: 2ch;
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.visitante {
+  clear: both;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--champagne);
+}
+
+.visitante-titulo {
+  grid-column: 1 / -1;
+  font-weight: 700;
+}
+
+.visitante label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+.visitante input,
+.visitante select {
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--verde-sage);
+  border-radius: 8px;
+  font: inherit;
+  color: var(--texto);
+  background: var(--blanco);
+}
+
+.formas-pago {
+  clear: both;
+  display: grid;
+  gap: 8px;
+}
+
+.forma-pago {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 2px solid var(--verde-sage);
+  border-radius: var(--radio);
+  cursor: pointer;
+}
+
+.forma-pago:has(input:checked) {
+  border-color: var(--verde-hunter);
+  background: var(--champagne);
+  font-weight: 700;
+}
+
+.forma-pago input {
+  accent-color: var(--verde-hunter);
+}
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.total {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--verde-hunter);
+}
+
+.boton-principal {
+  min-height: 48px;
+  padding: 12px 24px;
+  border: 0;
+  border-radius: var(--radio);
+  background: var(--verde-hunter);
+  color: var(--champagne);
+  font-weight: 700;
+}
+
+.boton-principal:hover:not(:disabled) {
+  background: var(--verde-sage);
+}
+
+.boton-principal:disabled {
+  background: var(--deshabilitado);
+  color: var(--texto-suave);
+}
+
+@media (max-width: 480px) {
+  .visitante {
+    grid-template-columns: 1fr;
+  }
+
+  .boton-principal {
+    width: 100%;
+  }
+}
+
+/* ---------- Errores ---------- */
+
+.error {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-left: 4px solid var(--ladrillo);
+  border-radius: 8px;
+  background: rgb(188 71 73 / 10%);
+  color: var(--ladrillo);
+  font-weight: 700;
+}
+
+/* ---------- Confirmación y modal del mail ---------- */
+
+.confirmacion {
+  text-align: center;
+}
+
+.confirmacion h2 {
+  color: var(--verde-hunter);
+}
+
+.confirmacion-mensaje {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.confirmacion .boton-principal {
+  display: inline-block;
+  margin-top: 8px;
+  text-decoration: none;
+}
+
+.modal-fondo {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(31 42 34 / 55%);
+}
+
+.modal {
+  width: 100%;
+  max-width: 360px;
+  padding: 24px;
+  border-radius: var(--radio);
+  background: var(--blanco);
+  box-shadow: var(--sombra);
+  text-align: center;
+}
+
+.modal h3 {
+  margin-top: 0;
+  color: var(--verde-hunter);
+}
+
+/* ---------- Pasarela de pago simulada ---------- */
+
+.mercado-pago {
+  max-width: 420px;
+  margin: 32px auto;
+  padding: 24px;
+  border-radius: var(--radio);
+  background: var(--blanco);
+  box-shadow: var(--sombra);
+  text-align: center;
+}
+
+.mercado-pago h2 {
+  margin-top: 0;
+  color: #1f4e79;
+}
+
+.mercado-pago-estado {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--verde-hunter);
+}
+
+.mercado-pago-monto {
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.boton-mercado-pago {
+  min-height: 48px;
+  padding: 12px 24px;
+  border: 0;
+  border-radius: var(--radio);
+  background: #1f4e79;
+  color: var(--blanco);
+  font-weight: 700;
+}
+
+.visitante-encabezado {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.visitante-precio {
+  font-weight: 700;
+  color: var(--verde-hunter);
+}
