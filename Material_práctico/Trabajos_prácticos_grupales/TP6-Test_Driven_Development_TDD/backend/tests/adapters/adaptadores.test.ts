@@ -78,6 +78,7 @@ describe("MercadoPagoSimulado", () => {
     monto: 30000,
     email: "ana@mail.com",
     descripcion: "2 entradas",
+    referencia: "ref-123",
   };
 
   it("aprueba el pago y devuelve la URL de checkout con el monto", async () => {

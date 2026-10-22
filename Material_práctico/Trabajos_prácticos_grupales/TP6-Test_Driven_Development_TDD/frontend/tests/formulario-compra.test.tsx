@@ -191,6 +191,29 @@ describe("Formulario de compra de entradas", () => {
       expect(edad.value).toBe("23");
     });
 
+    it("avisa cuál es la edad máxima si se ingresa una mayor", async () => {
+      const user = renderizar();
+      await user.click(await botonDia(/20\/10\/2026/));
+
+      await completarVisitante(user, 1, "121");
+      await user.click(screen.getByLabelText(/Efectivo/));
+
+      const edad = screen.getByLabelText("Edad del visitante 1");
+      expect(edad).toHaveAccessibleDescription("La edad máxima es 120 años");
+      expect(edad).toBeInvalid();
+      expect(botonConfirmar()).toBeDisabled();
+    });
+
+    it("no muestra el aviso con una edad dentro del máximo", async () => {
+      const user = renderizar();
+      await botonDia(/20\/10\/2026/);
+
+      await completarVisitante(user, 1, "120");
+
+      expect(screen.queryByText(/edad máxima/)).not.toBeInTheDocument();
+      expect(screen.getByLabelText("Edad del visitante 1")).toBeValid();
+    });
+
     it("permite una edad de 0 (bebés)", async () => {
       const user = renderizar();
       await botonDia(/20\/10\/2026/);

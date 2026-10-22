@@ -50,8 +50,9 @@ Abrir http://localhost:5173 en el navegador.
 - El usuario está **mockeado** (FAQ 19): la sesión corresponde siempre al usuario
   de prueba configurado en `TEST_USER_NAME` / `TEST_USER_EMAIL`. El correo al que
   se envía la confirmación se ingresa en el formulario de compra.
-- **Mercado Pago** está simulado (FAQ 4): el pago con tarjeta se aprueba y la app
-  redirige a una pantalla "Mercado Pago – Compra exitosa".
+- El pago con tarjeta usa **Mercado Pago Checkout Pro** si hay un
+  `MP_ACCESS_TOKEN` configurado. Si no, está simulado (FAQ 4): el pago se aprueba
+  y la app redirige a una pantalla "Mercado Pago – Compra exitosa".
 - El **mail de confirmación** se envía con [Resend](https://resend.com) si hay una
   `RESEND_API_KEY` configurada. Si no, se simula por la consola del backend (FAQ 5).
   En ambos casos la app muestra un modal "Mail enviado a …".

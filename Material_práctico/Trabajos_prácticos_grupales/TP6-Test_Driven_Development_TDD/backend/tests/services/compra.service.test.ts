@@ -6,7 +6,10 @@ import { TipoPase } from "../../src/entities/tipo-pase";
 import type { Usuario } from "../../src/entities/usuario";
 import type { CompraRepository } from "../../src/repositories/compra.repository";
 import type { UsuarioRepository } from "../../src/repositories/usuario.repository";
-import type { PasarelaPago } from "../../src/integrations/pasarela-pago";
+import type {
+  EstadoPago,
+  PasarelaPago,
+} from "../../src/integrations/pasarela-pago";
 import type { Notificador } from "../../src/integrations/notificador";
 import type { Reloj } from "../../src/config/reloj";
 import {
@@ -15,6 +18,7 @@ import {
 } from "../../src/services/compra.service";
 import {
   CantidadInvalidaError,
+  CompraInexistenteError,
   FormaPagoInvalidaError,
   LimiteAcumuladoExcedidoError,
   PagoRechazadoError,
@@ -33,7 +37,18 @@ const USUARIO: Usuario = {
   email: "ana@mail.com",
 };
 
-function crearEscenario({ pagoAprobado = true } = {}) {
+interface OpcionesEscenario {
+  pagoAprobado?: boolean;
+  // Checkout Pro: el comprador paga en Mercado Pago y el pago se confirma al volver
+  pagoFueraDeLaApp?: boolean;
+  estadoPago?: Partial<EstadoPago>;
+}
+
+function crearEscenario({
+  pagoAprobado = true,
+  pagoFueraDeLaApp = false,
+  estadoPago = {},
+}: OpcionesEscenario = {}) {
   const compras: Compra[] = [];
 
   const compraRepository: CompraRepository = {
@@ -47,16 +62,40 @@ function crearEscenario({ pagoAprobado = true } = {}) {
         .filter((c) => c.usuarioId === usuarioId && c.fechaVisita === fecha)
         .reduce((total, c) => total + c.entradas.length, 0),
     ),
+    buscarPorReferenciaPago: vi.fn(
+      async (referencia) =>
+        compras.find((c) => c.referenciaPago === referencia) ?? null,
+    ),
+    confirmarPago: vi.fn(async (id) => {
+      const compra = compras.find((c) => c.id === id);
+      if (!compra?.pendienteDePago) {
+        return false;
+      }
+      compra.pendienteDePago = false;
+      return true;
+    }),
   };
 
   const usuarioRepository: UsuarioRepository = {
     buscarPorId: vi.fn(async (id) => (id === USUARIO.id ? USUARIO : null)),
   };
 
+  // Mercado Pago devuelve en el pago la referencia con la que se creó
+  let ultimaReferencia = "";
   const pasarelaPago: PasarelaPago = {
-    pagar: vi.fn(async () => ({
-      aprobado: pagoAprobado,
-      urlRedireccion: URL_MERCADO_PAGO,
+    pagar: vi.fn(async ({ referencia }) => {
+      ultimaReferencia = referencia;
+      return {
+        aprobado: pagoAprobado,
+        urlRedireccion: URL_MERCADO_PAGO,
+        confirmacionPendiente: pagoFueraDeLaApp,
+      };
+    }),
+    consultarPago: vi.fn(async () => ({
+      aprobado: true,
+      referencia: ultimaReferencia,
+      monto: 30000,
+      ...estadoPago,
     })),
   };
 
@@ -182,6 +221,34 @@ describe("CompraService.comprar", () => {
     });
   });
 
+  describe("compra con tarjeta pagando en Mercado Pago Checkout Pro", () => {
+    const conTarjeta = () => solicitud({ formaPago: FormaPago.TARJETA });
+
+    it("registra la compra pendiente de pago y redirige, sin enviar el mail todavía", async () => {
+      const { service, compras, notificador } = crearEscenario({
+        pagoFueraDeLaApp: true,
+      });
+
+      const resultado = await service.comprar(conTarjeta());
+
+      expect(resultado.urlRedireccion).toBe(URL_MERCADO_PAGO);
+      expect(compras).toHaveLength(1);
+      expect(compras[0]?.pendienteDePago).toBe(true);
+      expect(notificador.enviar).not.toHaveBeenCalled();
+    });
+
+    it("identifica la compra en Mercado Pago con una referencia propia", async () => {
+      const { service, compras, pasarelaPago } = crearEscenario({
+        pagoFueraDeLaApp: true,
+      });
+
+      await service.comprar(conTarjeta());
+
+      const { referencia } = vi.mocked(pasarelaPago.pagar).mock.calls[0]![0];
+      expect(referencia).toEqual(expect.any(String));
+      expect(compras[0]?.referenciaPago).toBe(referencia);
+    });
+  });
   describe("mail de confirmación", () => {
     it("incluye cantidad, fecha, detalle por visitante, forma de pago y total", async () => {
       const { service, notificador } = crearEscenario();
@@ -291,5 +358,106 @@ describe("CompraService.comprar", () => {
       expect(compraRepository.guardar).not.toHaveBeenCalled();
       expect(notificador.enviar).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe("CompraService.confirmarPago", () => {
+  const conTarjeta = () => solicitud({ formaPago: FormaPago.TARJETA });
+  const confirmacion = { usuarioId: USUARIO.id, pagoId: "999" };
+
+  it("con el pago aprobado confirma la compra y envía el mail", async () => {
+    const { service, compras, pasarelaPago, notificador } = crearEscenario({
+      pagoFueraDeLaApp: true,
+    });
+    await service.comprar(conTarjeta());
+
+    const resultado = await service.confirmarPago(confirmacion);
+
+    expect(pasarelaPago.consultarPago).toHaveBeenCalledWith("999");
+    expect(compras[0]?.pendienteDePago).toBe(false);
+    expect(notificador.enviar).toHaveBeenCalledTimes(1);
+    expect(notificador.enviar).toHaveBeenCalledWith(
+      expect.objectContaining({ destinatario: USUARIO.email }),
+    );
+    expect(resultado).toEqual({
+      compraId: 1,
+      cantidadEntradas: 2,
+      fechaVisita: FECHA_VISITA,
+      total: 30000,
+      urlRedireccion: null,
+      emailConfirmacion: USUARIO.email,
+      mensaje: "Compraste 2 entradas para el 20/10/2026",
+    });
+  });
+
+  it("confirmar el mismo pago dos veces no vuelve a enviar el mail", async () => {
+    const { service, notificador } = crearEscenario({ pagoFueraDeLaApp: true });
+    await service.comprar(conTarjeta());
+
+    await service.confirmarPago(confirmacion);
+    const resultado = await service.confirmarPago(confirmacion);
+
+    expect(notificador.enviar).toHaveBeenCalledTimes(1);
+    expect(resultado.mensaje).toBe("Compraste 2 entradas para el 20/10/2026");
+  });
+
+  it("si el pago no fue aprobado, no confirma la compra ni envía mail", async () => {
+    const { service, compras, notificador } = crearEscenario({
+      pagoFueraDeLaApp: true,
+      estadoPago: { aprobado: false },
+    });
+    await service.comprar(conTarjeta());
+
+    await expect(service.confirmarPago(confirmacion)).rejects.toThrow(
+      PagoRechazadoError,
+    );
+    expect(compras[0]?.pendienteDePago).toBe(true);
+    expect(notificador.enviar).not.toHaveBeenCalled();
+  });
+
+  it("rechaza un pago por un monto distinto al total de la compra", async () => {
+    const { service, notificador } = crearEscenario({
+      pagoFueraDeLaApp: true,
+      estadoPago: { monto: 100 },
+    });
+    await service.comprar(conTarjeta());
+
+    await expect(service.confirmarPago(confirmacion)).rejects.toThrow(
+      PagoRechazadoError,
+    );
+    expect(notificador.enviar).not.toHaveBeenCalled();
+  });
+
+  it("rechaza un pago que no corresponde a ninguna compra", async () => {
+    const { service } = crearEscenario({
+      pagoFueraDeLaApp: true,
+      estadoPago: { referencia: "otra-compra" },
+    });
+    await service.comprar(conTarjeta());
+
+    await expect(service.confirmarPago(confirmacion)).rejects.toThrow(
+      CompraInexistenteError,
+    );
+  });
+
+  it("rechaza un pago que no existe en Mercado Pago", async () => {
+    const { service, pasarelaPago } = crearEscenario({
+      pagoFueraDeLaApp: true,
+    });
+    await service.comprar(conTarjeta());
+    vi.mocked(pasarelaPago.consultarPago!).mockResolvedValue(null);
+
+    await expect(service.confirmarPago(confirmacion)).rejects.toThrow(
+      CompraInexistenteError,
+    );
+  });
+
+  it("rechaza confirmar el pago de una compra de otro usuario", async () => {
+    const { service } = crearEscenario({ pagoFueraDeLaApp: true });
+    await service.comprar(conTarjeta());
+
+    await expect(
+      service.confirmarPago({ ...confirmacion, usuarioId: 2 }),
+    ).rejects.toThrow(CompraInexistenteError);
   });
 });

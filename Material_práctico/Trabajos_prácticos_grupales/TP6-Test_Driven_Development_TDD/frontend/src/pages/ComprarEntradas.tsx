@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Calendario from "../components/Calendario";
 import FormularioVisitante, {
+  EDAD_MAXIMA,
   type VisitanteForm,
 } from "../components/FormularioVisitante";
 import SelectorCantidad from "../components/SelectorCantidad";
@@ -15,8 +16,7 @@ import type {
   ResultadoCompra,
 } from "../types";
 import { formatearMonto } from "../utils/formato";
-
-const EDAD_MAXIMA = 120;
+import redirigirFueraDeLaApp from "../utils/redireccion";
 
 const nuevoVisitante = (): VisitanteForm => ({
   id: crypto.randomUUID(),
@@ -117,9 +117,15 @@ export default function ComprarEntradas() {
     const estado = { state: { resultado } };
 
     if (resultado.urlRedireccion) {
+      const url = new URL(resultado.urlRedireccion);
+      if (url.hostname !== window.location.hostname) {
+        // Mercado Pago Checkout Pro: se sale de la app para pagar y, al
+        // terminar, Mercado Pago vuelve a /confirmacion con el id del pago
+        redirigirFueraDeLaApp(url.href);
+        return;
+      }
       // Redirección simulada a Mercado Pago dentro de la misma app (FAQ 4)
-      const { pathname, search } = new URL(resultado.urlRedireccion);
-      navigate(`${pathname}${search}`, estado);
+      navigate(`${url.pathname}${url.search}`, estado);
     } else {
       navigate("/confirmacion", estado);
     }

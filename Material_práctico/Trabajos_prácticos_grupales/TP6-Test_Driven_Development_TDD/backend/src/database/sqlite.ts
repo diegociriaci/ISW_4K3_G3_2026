@@ -3,6 +3,30 @@ import { dirname, resolve } from "node:path";
 import { mkdirSync } from "node:fs";
 import type { Usuario } from "../entities/usuario";
 
+// Columnas agregadas después de crear la tabla: CREATE TABLE IF NOT EXISTS no
+// las agrega a una base ya existente
+const COLUMNAS_NUEVAS_COMPRAS = [
+  ["referencia_pago", "TEXT"],
+  ["pendiente_pago", "INTEGER NOT NULL DEFAULT 0"],
+] as const;
+
+export function migrarBaseDeDatos(db: Database.Database): void {
+  const existentes = new Set(
+    (db.prepare("PRAGMA table_info(compras)").all() as { name: string }[]).map(
+      (columna) => columna.name,
+    ),
+  );
+
+  COLUMNAS_NUEVAS_COMPRAS.filter(([nombre]) => !existentes.has(nombre)).forEach(
+    ([nombre, definicion]) =>
+      db.exec(`ALTER TABLE compras ADD COLUMN ${nombre} ${definicion}`),
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_compras_referencia_pago
+       ON compras(referencia_pago)`,
+  );
+}
+
 export default function crearBaseDeDatos(
   ruta: string,
   usuarioInicial: Usuario,
@@ -31,6 +55,8 @@ export default function crearBaseDeDatos(
       fecha_visita TEXT NOT NULL,
       forma_pago TEXT NOT NULL CHECK (forma_pago IN ('EFECTIVO', 'TARJETA')),
       total INTEGER NOT NULL CHECK (total >= 0),
+      referencia_pago TEXT,
+      pendiente_pago INTEGER NOT NULL DEFAULT 0,
       creada_en TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
     );
@@ -49,6 +75,7 @@ export default function crearBaseDeDatos(
     CREATE INDEX IF NOT EXISTS idx_entradas_compra
       ON entradas(compra_id);
   `);
+  migrarBaseDeDatos(db);
 
   db.prepare(
     `INSERT INTO usuarios (id, nombre, email)

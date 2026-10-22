@@ -12,4 +12,8 @@ export interface Compra {
   formaPago: FormaPago;
   entradas: EntradaComprada[];
   total: number;
+  // Pago con Checkout Pro: referencia del pago en Mercado Pago y si todavía
+  // no se confirmó
+  referenciaPago?: string;
+  pendienteDePago?: boolean;
 }

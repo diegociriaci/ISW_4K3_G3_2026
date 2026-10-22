@@ -92,13 +92,59 @@ La API key de Resend se obtiene en **resend.com > API Keys** y se coloca en
 cuenta de Resend. Para enviar a cualquier direccion se debe verificar un dominio
 propio.
 
-## Pago con tarjeta (Mercado Pago simulado)
+## Pago con tarjeta (Mercado Pago Checkout Pro o simulado)
 
-El pago con tarjeta esta simulado (FAQ 4): al confirmar la compra, el backend
-aprueba el pago simulado, registra la compra y envia el correo de confirmacion.
-Despues la app redirige a la pantalla "Mercado Pago - Compra exitosa" y, al
-volver, muestra la confirmacion. No hace falta ninguna credencial de Mercado
-Pago.
+Si `MP_ACCESS_TOKEN` tiene un access token de Mercado Pago, el pago con tarjeta
+usa **Checkout Pro**:
+
+1. Al confirmar la compra, el backend registra la compra como pendiente de pago,
+   crea una preferencia de pago y la app redirige a la pagina de Mercado Pago.
+   Todavia no se envia el mail.
+2. Al terminar de pagar, Mercado Pago vuelve a `URL_FRONTEND/confirmacion` con
+   el id del pago. La app le pide al backend que confirme el pago: el backend lo
+   consulta en Mercado Pago y, si esta aprobado, corresponde a la compra y cubre
+   su total, confirma la compra y envia el mail de confirmacion.
+3. Si el pago no se aprobo o se vuelve sin pagar, la app lo informa y no se
+   envia el mail.
+
+```dotenv
+MP_ACCESS_TOKEN=APP_USR-xxxxxxxx
+MP_ENTORNO=prueba
+```
+
+El access token se obtiene en **mercadopago.com.ar/developers > Tus
+integraciones > (aplicacion) > Credenciales de prueba**. Con
+`MP_ENTORNO=prueba` (valor por defecto) la app redirige al checkout de prueba
+(sandbox) y no se cobra de verdad; con `MP_ENTORNO=produccion` usa el checkout
+real.
+
+Para pagar en el entorno de prueba hay que crear un usuario "Comprador" en
+**Tus integraciones > (aplicacion) > Cuentas de prueba**, iniciar sesion en
+Mercado Pago con ese usuario y pagar con una tarjeta de prueba. Con la cuenta
+real de Mercado Pago el pago de prueba se rechaza.
+
+Mercado Pago solo vuelve **automaticamente** a la app despues de pagar si
+`URL_FRONTEND` es `https`. Con `http://localhost` hay que tocar "Volver al sitio"
+en la pagina de Mercado Pago. Para que vuelva solo, levantar el frontend con un
+certificado local y apuntar `URL_FRONTEND` a esa direccion:
+
+```powershell
+cd frontend
+npm run dev:https
+```
+
+```dotenv
+URL_FRONTEND=https://localhost:5173
+```
+
+La primera vez el navegador avisa que el certificado no es de confianza (es
+local); hay que aceptarlo para continuar.
+
+Si `MP_ACCESS_TOKEN` queda vacio, el pago con tarjeta esta simulado (FAQ 4): el
+backend aprueba el pago simulado, registra la compra y envia el correo de
+confirmacion. Despues la app redirige a la pantalla "Mercado Pago - Compra
+exitosa" y, al volver, muestra la confirmacion. No hace falta ninguna
+credencial de Mercado Pago.
 
 ## Verificaciones
 

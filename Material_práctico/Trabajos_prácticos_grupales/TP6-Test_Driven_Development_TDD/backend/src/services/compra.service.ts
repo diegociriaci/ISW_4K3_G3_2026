@@ -1,14 +1,20 @@
+import { randomUUID } from "node:crypto";
 import type { Reloj } from "../config/reloj";
+import type { Compra } from "../entities/compra";
 import type { EntradaSolicitada } from "../entities/entrada-solicitada";
 import { FormaPago, esFormaPago } from "../entities/forma-pago";
 import type { Usuario } from "../entities/usuario";
 import {
+  CompraInexistenteError,
   FormaPagoInvalidaError,
   PagoRechazadoError,
   UsuarioNoRegistradoError,
 } from "../errors/errores-negocio";
 import type { Notificador } from "../integrations/notificador";
-import type { PasarelaPago } from "../integrations/pasarela-pago";
+import type {
+  PasarelaPago,
+  ResultadoPago,
+} from "../integrations/pasarela-pago";
 import type { CompraRepository } from "../repositories/compra.repository";
 import type { UsuarioRepository } from "../repositories/usuario.repository";
 import { validarFechaVisita } from "../rules/calendario-parque";
@@ -38,6 +44,11 @@ export interface ResultadoCompra {
   mensaje: string;
 }
 
+export interface ConfirmacionPago {
+  usuarioId: number;
+  pagoId: string;
+}
+
 export interface DependenciasCompraService {
   compraRepository: CompraRepository;
   usuarioRepository: UsuarioRepository;
@@ -50,6 +61,8 @@ export interface DependenciasCompraService {
  * Caso de uso "Comprar entradas".
  * Orden: validar → cobrar (si es con tarjeta) → registrar → notificar.
  * Si algo falla antes de registrar, no se cobra ni se envía mail.
+ * Con Checkout Pro el pago se hace fuera de la app: la compra queda pendiente
+ * de pago y se notifica al confirmarlo (confirmarPago).
  */
 export class CompraService {
   constructor(private readonly dependencias: DependenciasCompraService) {}
@@ -68,7 +81,7 @@ export class CompraService {
     const cotizacion = cotizar(entradas);
     await this.validarFechaYLimiteAcumulado(solicitud);
 
-    const urlRedireccion = await this.cobrar(
+    const pago = await this.cobrar(
       formaPago,
       cotizacion.total,
       usuario,
@@ -81,10 +94,68 @@ export class CompraService {
       formaPago,
       entradas: cotizacion.entradas,
       total: cotizacion.total,
+      ...(pago?.confirmacionPendiente && {
+        referenciaPago: pago.referencia,
+        pendienteDePago: true,
+      }),
     });
 
-    await notificador.enviar(construirMailConfirmacion(compra, usuario));
+    // Con Checkout Pro el mail se envía recién cuando se confirma el pago
+    if (!compra.pendienteDePago) {
+      await notificador.enviar(construirMailConfirmacion(compra, usuario));
+    }
 
+    return CompraService.resultado(
+      compra,
+      usuario,
+      pago?.urlRedireccion ?? null,
+    );
+  }
+
+  /**
+   * Confirma una compra pagada fuera de la app (Mercado Pago Checkout Pro).
+   * Se consulta el pago a la pasarela y, si está aprobado, corresponde a una
+   * compra del usuario y cubre su total, se confirma la compra y se envía el
+   * mail. Confirmar de nuevo el mismo pago no reenvía el mail.
+   */
+  async confirmarPago({
+    usuarioId,
+    pagoId,
+  }: ConfirmacionPago): Promise<ResultadoCompra> {
+    const { compraRepository, pasarelaPago, notificador } = this.dependencias;
+
+    if (!pasarelaPago.consultarPago) {
+      throw new CompraInexistenteError("No hay pagos pendientes de confirmar");
+    }
+    const pago = await pasarelaPago.consultarPago(pagoId);
+    const compra =
+      pago && (await compraRepository.buscarPorReferenciaPago(pago.referencia));
+    if (!pago || !compra || compra.usuarioId !== usuarioId) {
+      throw new CompraInexistenteError(
+        "No se encontró la compra correspondiente al pago",
+      );
+    }
+    if (!pago.aprobado) {
+      throw new PagoRechazadoError("El pago con tarjeta no fue aprobado");
+    }
+    if (pago.monto !== compra.total) {
+      throw new PagoRechazadoError(
+        "El monto pagado no coincide con el total de la compra",
+      );
+    }
+
+    const usuario = await this.buscarUsuarioRegistrado(usuarioId);
+    if (await compraRepository.confirmarPago(compra.id)) {
+      await notificador.enviar(construirMailConfirmacion(compra, usuario));
+    }
+    return CompraService.resultado(compra, usuario, null);
+  }
+
+  private static resultado(
+    compra: Compra,
+    usuario: Usuario,
+    urlRedireccion: string | null,
+  ): ResultadoCompra {
     return {
       compraId: compra.id,
       cantidadEntradas: compra.entradas.length,
@@ -133,25 +204,27 @@ export class CompraService {
     );
   }
 
-  // Devuelve la URL de Mercado Pago a la que se redirige, o null si es efectivo
+  // Cobra con Mercado Pago si es con tarjeta; null si es en efectivo
   private async cobrar(
     formaPago: FormaPago,
     total: number,
     usuario: Usuario,
     { fechaVisita, entradas }: SolicitudCompra,
-  ): Promise<string | null> {
+  ): Promise<(ResultadoPago & { referencia: string }) | null> {
     if (formaPago !== FormaPago.TARJETA) {
       return null;
     }
 
+    const referencia = randomUUID();
     const pago = await this.dependencias.pasarelaPago.pagar({
       monto: total,
       email: usuario.email,
       descripcion: `${entradas.length} entradas EcoHarmony Park - ${formatearFecha(fechaVisita)}`,
+      referencia,
     });
     if (!pago.aprobado) {
       throw new PagoRechazadoError("El pago con tarjeta fue rechazado");
     }
-    return pago.urlRedireccion;
+    return { ...pago, referencia };
   }
 }

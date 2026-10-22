@@ -5,8 +5,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../src/App";
 import * as api from "../src/services/api";
 import type { ResultadoCompra } from "../src/types";
+import redirigirFueraDeLaApp from "../src/utils/redireccion";
 
 vi.mock("../src/services/api");
+// jsdom no puede navegar a otro sitio
+vi.mock("../src/utils/redireccion");
 
 const RESULTADO_EFECTIVO: ResultadoCompra = {
   compraId: 1,
@@ -24,6 +27,8 @@ const RESULTADO_TARJETA: ResultadoCompra = {
 };
 
 beforeEach(() => {
+  vi.mocked(redirigirFueraDeLaApp).mockReset();
+  vi.mocked(api.confirmarPago).mockReset();
   vi.mocked(api.obtenerCalendario).mockResolvedValue({
     desde: "2026-10-14",
     hasta: "2026-11-14",
@@ -129,6 +134,88 @@ describe("Flujo de compra de entradas", () => {
 
       expect(await screen.findByText("Compra exitosa")).toBeInTheDocument();
       expect(screen.getByText("$25.000")).toBeInTheDocument();
+    });
+  });
+
+  describe("pago con tarjeta en Mercado Pago Checkout Pro", () => {
+    const URL_CHECKOUT_PRO =
+      "https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=123";
+
+    it("redirige a la página de pago de Mercado Pago", async () => {
+      vi.mocked(api.comprar).mockResolvedValue({
+        ...RESULTADO_EFECTIVO,
+        urlRedireccion: URL_CHECKOUT_PRO,
+      });
+      const user = renderizarApp();
+
+      await completarYConfirmar(user, /Tarjeta/);
+
+      await vi.waitFor(() =>
+        expect(redirigirFueraDeLaApp).toHaveBeenCalledWith(URL_CHECKOUT_PRO),
+      );
+    });
+
+    // Así vuelve Mercado Pago a la app después de pagar
+    const VUELTA_PAGO_APROBADO =
+      "/confirmacion?collection_id=999&collection_status=approved&payment_id=999&status=approved&external_reference=abc";
+
+    it("al volver con el pago aprobado, confirma el pago y muestra la confirmación y el mail enviado", async () => {
+      vi.mocked(api.confirmarPago).mockResolvedValue(RESULTADO_EFECTIVO);
+
+      renderizarApp(VUELTA_PAGO_APROBADO);
+
+      expect(
+        await screen.findByRole("heading", { name: "¡Compra confirmada!" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("Compraste 2 entradas para el 20/10/2026"),
+      ).toBeInTheDocument();
+      expect(
+        within(screen.getByRole("dialog")).getByText(
+          "Mail enviado a ana@mail.com",
+        ),
+      ).toBeInTheDocument();
+      expect(api.confirmarPago).toHaveBeenCalledTimes(1);
+      expect(api.confirmarPago).toHaveBeenCalledWith("999");
+    });
+
+    it("mientras se confirma el pago lo informa", async () => {
+      vi.mocked(api.confirmarPago).mockReturnValue(new Promise(() => {}));
+
+      renderizarApp(VUELTA_PAGO_APROBADO);
+
+      expect(
+        await screen.findByText("Confirmando tu pago…"),
+      ).toBeInTheDocument();
+    });
+
+    it("si el pago no se pudo confirmar, muestra el motivo y permite volver a comprar", async () => {
+      vi.mocked(api.confirmarPago).mockRejectedValue(
+        new Error("El pago con tarjeta no fue aprobado"),
+      );
+      const user = renderizarApp(VUELTA_PAGO_APROBADO);
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        "El pago con tarjeta no fue aprobado",
+      );
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole("link", { name: "Volver a comprar entradas" }),
+      );
+
+      expect(
+        await screen.findByRole("heading", { name: "Comprar entradas" }),
+      ).toBeInTheDocument();
+    });
+
+    it("si se vuelve sin pagar, informa que el pago no se completó", async () => {
+      renderizarApp("/confirmacion?payment_id=null&status=null");
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        "El pago no se completó",
+      );
+      expect(api.confirmarPago).not.toHaveBeenCalled();
     });
   });
 

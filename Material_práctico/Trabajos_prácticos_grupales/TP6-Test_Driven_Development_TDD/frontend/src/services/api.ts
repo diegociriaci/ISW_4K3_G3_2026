@@ -47,3 +47,12 @@ export function comprar(solicitud: SolicitudCompra): Promise<ResultadoCompra> {
     body: JSON.stringify(solicitud),
   });
 }
+
+// Al volver de Mercado Pago Checkout Pro: el backend verifica el pago y, si
+// está aprobado, confirma la compra y envía el mail
+export function confirmarPago(pagoId: string): Promise<ResultadoCompra> {
+  return pedir<ResultadoCompra>("/compras/confirmar-pago", {
+    method: "POST",
+    body: JSON.stringify({ pagoId }),
+  });
+}

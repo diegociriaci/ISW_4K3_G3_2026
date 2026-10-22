@@ -18,5 +18,10 @@ export const cotizacionRequestSchema = z.object({
   entradas: z.array(entradaSchema),
 });
 
+// Id del pago que Mercado Pago agrega a la URL al volver a la app
+export const confirmarPagoRequestSchema = z.object({
+  pagoId: z.string().min(1),
+});
+
 export type CompraRequestDto = z.infer<typeof compraRequestSchema>;
 export type CotizacionRequestDto = z.infer<typeof cotizacionRequestSchema>;

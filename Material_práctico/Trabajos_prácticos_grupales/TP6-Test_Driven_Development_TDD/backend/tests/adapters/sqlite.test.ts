@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type Database from "better-sqlite3";
-import crearBaseDeDatos from "../../src/database/sqlite";
+import Database from "better-sqlite3";
+import crearBaseDeDatos, { migrarBaseDeDatos } from "../../src/database/sqlite";
 import type { Compra } from "../../src/entities/compra";
 import { FormaPago } from "../../src/entities/forma-pago";
 import { TipoPase } from "../../src/entities/tipo-pase";
@@ -67,6 +67,67 @@ describe("CompraRepositorySQLite", () => {
     await expect(
       repositorio.contarEntradasPorUsuarioYFecha(1, "2026-10-20"),
     ).resolves.toBe(0);
+  });
+
+  describe("compras pendientes de pago (Checkout Pro)", () => {
+    const compraPendiente = (): Omit<Compra, "id"> => ({
+      ...compraSinId(1, "2026-10-20", 2),
+      formaPago: FormaPago.TARJETA,
+      referenciaPago: "ref-123",
+      pendienteDePago: true,
+    });
+
+    it("busca una compra con sus entradas por la referencia del pago", async () => {
+      const repositorio = new CompraRepositorySQLite(db);
+      await repositorio.guardar(compraSinId(1, "2026-10-20", 1));
+      await repositorio.guardar(compraPendiente());
+
+      await expect(
+        repositorio.buscarPorReferenciaPago("ref-123"),
+      ).resolves.toEqual({ ...compraPendiente(), id: 2 });
+    });
+
+    it("devuelve null si ninguna compra tiene esa referencia", async () => {
+      const repositorio = new CompraRepositorySQLite(db);
+      await repositorio.guardar(compraPendiente());
+
+      await expect(
+        repositorio.buscarPorReferenciaPago("otra"),
+      ).resolves.toBeNull();
+    });
+
+    it("confirma el pago una sola vez", async () => {
+      const repositorio = new CompraRepositorySQLite(db);
+      const compra = await repositorio.guardar(compraPendiente());
+
+      await expect(repositorio.confirmarPago(compra.id)).resolves.toBe(true);
+      await expect(repositorio.confirmarPago(compra.id)).resolves.toBe(false);
+      await expect(
+        repositorio.buscarPorReferenciaPago("ref-123"),
+      ).resolves.toMatchObject({ pendienteDePago: false });
+    });
+
+    it("agrega las columnas nuevas a una base creada antes de Checkout Pro", async () => {
+      const vieja = new Database(":memory:");
+      vieja.exec(`
+        CREATE TABLE compras (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          usuario_id INTEGER NOT NULL,
+          fecha_visita TEXT NOT NULL,
+          forma_pago TEXT NOT NULL,
+          total INTEGER NOT NULL
+        );
+      `);
+
+      migrarBaseDeDatos(vieja);
+
+      const columnas = (
+        vieja.prepare("PRAGMA table_info(compras)").all() as { name: string }[]
+      ).map((c) => c.name);
+      expect(columnas).toEqual(
+        expect.arrayContaining(["referencia_pago", "pendiente_pago"]),
+      );
+    });
   });
 });
 

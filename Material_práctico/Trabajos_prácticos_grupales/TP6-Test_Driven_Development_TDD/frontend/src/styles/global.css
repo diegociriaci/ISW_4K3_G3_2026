@@ -276,6 +276,15 @@ button:disabled {
   font-weight: 700;
 }
 
+.visitante input[aria-invalid="true"] {
+  border-color: var(--ladrillo);
+}
+
+.aviso-campo {
+  color: var(--ladrillo);
+  font-weight: 700;
+}
+
 /* ---------- Confirmación y modal del mail ---------- */
 
 .confirmacion {

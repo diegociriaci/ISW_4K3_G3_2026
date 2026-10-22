@@ -15,6 +15,8 @@ interface FormularioVisitanteProps {
   onCambiar: (visitante: VisitanteForm) => void;
 }
 
+export const EDAD_MAXIMA = 120;
+
 // Teclas que un input numérico acepta pero no forman una edad válida
 const TECLAS_NO_NUMERICAS = ["-", "+", "e", "E", ".", ","];
 
@@ -28,6 +30,8 @@ export default function FormularioVisitante({
   const idEdad = `edad-${visitante.id}`;
   const idPase = `pase-${visitante.id}`;
   const idTitulo = `visitante-${visitante.id}`;
+  const idAvisoEdad = `aviso-edad-${visitante.id}`;
+  const superaEdadMaxima = Number(visitante.edad) > EDAD_MAXIMA;
 
   return (
     <div className="visitante" role="group" aria-labelledby={idTitulo}>
@@ -48,8 +52,10 @@ export default function FormularioVisitante({
           type="number"
           inputMode="numeric"
           min={0}
-          max={120}
+          max={EDAD_MAXIMA}
           aria-label={`Edad del visitante ${numero}`}
+          aria-invalid={superaEdadMaxima}
+          aria-describedby={superaEdadMaxima ? idAvisoEdad : undefined}
           value={visitante.edad}
           onKeyDown={(e) => {
             if (TECLAS_NO_NUMERICAS.includes(e.key)) {
@@ -65,6 +71,11 @@ export default function FormularioVisitante({
             }
           }}
         />
+        {superaEdadMaxima && (
+          <span id={idAvisoEdad} className="aviso-campo">
+            La edad máxima es {EDAD_MAXIMA} años
+          </span>
+        )}
       </label>
       <label htmlFor={idPase}>
         Pase

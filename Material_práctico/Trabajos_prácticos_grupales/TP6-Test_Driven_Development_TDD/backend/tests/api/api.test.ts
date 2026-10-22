@@ -6,6 +6,7 @@ import CompraRepositoryEnMemoria from "../../src/repositories/memoria/compra.rep
 import UsuarioRepositoryEnMemoria from "../../src/repositories/memoria/usuario.repository.memoria";
 import MercadoPagoSimulado from "../../src/integrations/mercado-pago-simulado";
 import NotificadorMailSimulado from "../../src/integrations/notificador-mail-simulado";
+import type { PasarelaPago } from "../../src/integrations/pasarela-pago";
 import { CompraService } from "../../src/services/compra.service";
 import CalendarioService from "../../src/services/calendario.service";
 
@@ -13,18 +14,25 @@ const USUARIO = { id: 1, nombre: "Ana Pérez", email: "ana@mail.com" };
 const MIERCOLES_A_LA_MANANA: Momento = { fecha: "2026-10-14", hora: "10:00" };
 const URL_CHECKOUT = "http://localhost:5173/mercado-pago";
 
+interface OpcionesAppDePrueba {
+  ahora?: Momento;
+  pagoAprobado?: boolean;
+  pasarelaPago?: PasarelaPago;
+}
+
 function crearAppDePrueba({
   ahora = MIERCOLES_A_LA_MANANA,
   pagoAprobado = true,
-} = {}) {
+  pasarelaPago = new MercadoPagoSimulado({
+    urlCheckout: URL_CHECKOUT,
+    aprobado: pagoAprobado,
+  }),
+}: OpcionesAppDePrueba = {}) {
   const reloj = { ahora: () => ahora };
   const compraService = new CompraService({
     compraRepository: new CompraRepositoryEnMemoria(),
     usuarioRepository: new UsuarioRepositoryEnMemoria([USUARIO]),
-    pasarelaPago: new MercadoPagoSimulado({
-      urlCheckout: URL_CHECKOUT,
-      aprobado: pagoAprobado,
-    }),
+    pasarelaPago,
     notificador: new NotificadorMailSimulado(),
     reloj,
   });
@@ -154,6 +162,88 @@ describe("POST /api/compras", () => {
 
     expect(respuesta.status).toBe(402);
     expect(respuesta.body.error.tipo).toBe("PagoRechazadoError");
+  });
+});
+
+// Como Checkout Pro: se paga fuera de la app y el pago se consulta al volver
+function crearCheckoutProDePrueba({ pagoAprobado = true } = {}): PasarelaPago {
+  let referenciaPagada = "";
+  return {
+    async pagar({ referencia }) {
+      referenciaPagada = referencia;
+      return {
+        aprobado: true,
+        urlRedireccion: "https://www.mercadopago.com.ar/checkout",
+        confirmacionPendiente: true,
+      };
+    },
+    async consultarPago(pagoId) {
+      return {
+        aprobado: pagoAprobado,
+        referencia: pagoId === "999" ? referenciaPagada : "desconocida",
+        monto: 30000,
+      };
+    },
+  };
+}
+
+function postConfirmarPago(app: ReturnType<typeof crearApp>, body: object) {
+  return request(app)
+    .post("/api/compras/confirmar-pago")
+    .set("x-usuario-id", String(USUARIO.id))
+    .send(body);
+}
+
+describe("POST /api/compras/confirmar-pago", () => {
+  async function appConCompraPendiente(opciones = {}) {
+    const app = crearAppDePrueba({
+      pasarelaPago: crearCheckoutProDePrueba(opciones),
+    });
+    await postCompra(app, { ...compraValida, formaPago: "TARJETA" });
+    return app;
+  }
+
+  it("confirma el pago aprobado y responde la compra confirmada", async () => {
+    const app = await appConCompraPendiente();
+
+    const respuesta = await postConfirmarPago(app, { pagoId: "999" });
+
+    expect(respuesta.status).toBe(200);
+    expect(respuesta.body).toEqual({
+      compraId: 1,
+      cantidadEntradas: 2,
+      fechaVisita: "2026-10-20",
+      total: 30000,
+      urlRedireccion: null,
+      emailConfirmacion: USUARIO.email,
+      mensaje: "Compraste 2 entradas para el 20/10/2026",
+    });
+  });
+
+  it("si el pago no fue aprobado responde 402", async () => {
+    const app = await appConCompraPendiente({ pagoAprobado: false });
+
+    const respuesta = await postConfirmarPago(app, { pagoId: "999" });
+
+    expect(respuesta.status).toBe(402);
+    expect(respuesta.body.error.tipo).toBe("PagoRechazadoError");
+  });
+
+  it("si el pago no corresponde a ninguna compra responde 404", async () => {
+    const app = await appConCompraPendiente();
+
+    const respuesta = await postConfirmarPago(app, { pagoId: "123" });
+
+    expect(respuesta.status).toBe(404);
+    expect(respuesta.body.error.tipo).toBe("CompraInexistenteError");
+  });
+
+  it("sin el id del pago responde 400", async () => {
+    const app = await appConCompraPendiente();
+
+    const respuesta = await postConfirmarPago(app, {});
+
+    expect(respuesta.status).toBe(400);
   });
 });
 

@@ -4,6 +4,7 @@ import type { FormaPago } from "../entities/forma-pago";
 import { UsuarioNoRegistradoError } from "../errors/errores-negocio";
 import {
   compraRequestSchema,
+  confirmarPagoRequestSchema,
   cotizacionRequestSchema,
 } from "../dtos/compra.request.dto";
 import validarBody from "../dtos/validar-body";
@@ -38,6 +39,14 @@ export default function crearCompraController(compraService: CompraService) {
       });
 
       res.status(201).json(resultado);
+    },
+
+    // Al volver de Mercado Pago Checkout Pro
+    async confirmarPago(req: Request, res: Response): Promise<void> {
+      const usuarioId = obtenerUsuarioId(req);
+      const { pagoId } = validarBody(confirmarPagoRequestSchema, req.body);
+
+      res.json(await compraService.confirmarPago({ usuarioId, pagoId }));
     },
 
     cotizar(req: Request, res: Response): void {

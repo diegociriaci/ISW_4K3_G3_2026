@@ -18,4 +18,18 @@ export default class CompraRepositoryEnMemoria implements CompraRepository {
       .filter((c) => c.usuarioId === usuarioId && c.fechaVisita === fechaVisita)
       .reduce((total, c) => total + c.entradas.length, 0);
   }
+
+  async buscarPorReferenciaPago(referencia: string): Promise<Compra | null> {
+    const compra = this.compras.find((c) => c.referenciaPago === referencia);
+    return compra ? structuredClone(compra) : null;
+  }
+
+  async confirmarPago(compraId: number): Promise<boolean> {
+    const compra = this.compras.find((c) => c.id === compraId);
+    if (!compra?.pendienteDePago) {
+      return false;
+    }
+    compra.pendienteDePago = false;
+    return true;
+  }
 }

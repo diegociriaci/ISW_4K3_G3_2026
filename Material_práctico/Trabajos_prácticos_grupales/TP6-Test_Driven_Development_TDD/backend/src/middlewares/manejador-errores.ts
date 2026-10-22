@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import {
+  CompraInexistenteError,
   ErrorDeNegocio,
   PagoRechazadoError,
   SolicitudInvalidaError,
@@ -10,6 +11,7 @@ const STATUS_POR_ERROR = new Map<unknown, number>([
   [SolicitudInvalidaError, 400],
   [UsuarioNoRegistradoError, 401],
   [PagoRechazadoError, 402],
+  [CompraInexistenteError, 404],
 ]);
 
 // Cualquier otra regla de negocio incumplida responde 422

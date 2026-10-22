@@ -19,6 +19,7 @@ export default function crearRutas({
 
   router.post("/compras", compraController.comprar);
   router.post("/compras/cotizar", compraController.cotizar);
+  router.post("/compras/confirmar-pago", compraController.confirmarPago);
   router.get("/calendario", calendarioController.obtener);
 
   return router;
